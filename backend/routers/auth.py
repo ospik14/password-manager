@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException
-from backend.schemas.user import UserRequest
-from backend.depends import db_dep
-from backend.core.exceptions import UserExists
-from backend.services.auth_se import register_user
+from schemas.user import UserRequest
+from depends import db_dep
+from core.exceptions import UserExists
+from services.auth_se import register_user
 
 router = APIRouter(
     prefix='/auth',

@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from sqlalchemy import String, DateTime, func
-from backend.core.database import Base
+from core.database import Base
 from sqlalchemy.orm import Mapped, mapped_column
 
 class User(Base):

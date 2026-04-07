@@ -1,18 +1,12 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy import select
-from backend.models.db_tables import Person
-from backend.core.exceptions import PersonExists
+from models.db_tables import User
+from core.exceptions import UserExists
 
-async def create_user(session: AsyncSession, person: Person):
-    session.add(person)
+async def create_user(session: AsyncSession, user: User):
+    session.add(user)
     try: 
         await session.commit()
     except IntegrityError:
-        raise PersonExists
+        raise UserExists
     
-async def get_person_by_email(session: AsyncSession, filters: dict):
-    query = (select(Person).filter_by(**filters))
-    person = await session.execute(query)
-
-    return person.scalar_one_or_none()
