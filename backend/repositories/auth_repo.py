@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
-from models.db_tables import User
+from models.db_tables import User, RefreshToken
 from core.exceptions import UserExists
 
 async def create_user(session: AsyncSession, user: User):
@@ -9,4 +9,8 @@ async def create_user(session: AsyncSession, user: User):
         await session.commit()
     except IntegrityError:
         raise UserExists
+    
+async def save_refresh_token(session: AsyncSession, token: RefreshToken):
+    session.add(token)
+    await session.commit()
     

@@ -19,13 +19,8 @@ def sync_hash_password(password: str):
 async def hash_password(password: str):
     return await run_in_threadpool(sync_hash_password, password)
 
-def create_token(payload: dict, expires_time: timedelta):
-    encode = payload.copy()
-    expires_at = datetime.now(timezone.utc) + expires_time
-    encode.update({'exp': expires_at})
+def create_token(payload: dict, ):
     token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
-    return TokenBase(
-        token=token,
-        expires_at=expires_at
-    )
+    return token
+    
