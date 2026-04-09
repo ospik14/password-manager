@@ -1,12 +1,12 @@
 import uuid
-from datetime import datetime, timedelta, timezone
 from sqlalchemy.ext.asyncio import AsyncSession
-from repositories.auth_repo import create_user, save_refresh_token, get_user_by_email
+from repositories.auth_repo import create_user, get_user_by_email
 from schemas.user import UserRequest
-from schemas.token import TokenBase
-from models.db_tables import User, RefreshToken
-from core.security import hash_password, create_token, verify_hash
+from models.db_tables import User
+from core.security import hash_password, verify_hash
 from core.exceptions import InvalidCredentialsError
+from services.tokens_se import get_tokens
+
 
 async def register_user(session: AsyncSession, user_request: UserRequest):
     user_id = str(uuid.uuid4())
@@ -16,33 +16,10 @@ async def register_user(session: AsyncSession, user_request: UserRequest):
         master_password_hash= await hash_password(user_request.password)
     )
     await create_user(session, user)
+    tokens = await get_tokens(session, user_id)
 
-    current_time = datetime.now(timezone.utc)
-    expires_time = current_time + timedelta(minutes=20)
-    payload = {
-        'sub': user_id,
-        'type': 'access',
-        'exp': expires_time
-    }
-    access_token = create_token(payload)
+    return tokens
 
-    expires_time = current_time + timedelta(days=30)
-    payload.update({'type': 'refresh'})
-    payload.update({'exp': expires_time})
-
-    refresh_token = create_token(payload)
-
-    refresh_data = RefreshToken(
-        user_id = user_id,
-        token = await hash_password(refresh_token),
-        expires_at = expires_time
-    )
-    await save_refresh_token(session, refresh_data)
-
-    return TokenBase(
-        access_token=access_token,
-        refresh_token=refresh_token
-    )
     
 async def authenticate_user(session: AsyncSession, user_data: UserRequest):
     current_user = await get_user_by_email(session, user_data.email)
@@ -55,3 +32,7 @@ async def authenticate_user(session: AsyncSession, user_data: UserRequest):
         user_data.password
     ):
         return InvalidCredentialsError()
+
+    tokens = await get_tokens(session, current_user.id)
+
+    return tokens
