@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException, Response
 from schemas.user import UserRequest
-from depends import db_dep
+from depends import db_dep, form_dep
 from core.exceptions import UserExists
-from services.auth_se import register_user
+from services.auth_se import register_user, authenticate_user
 
 router = APIRouter(
     prefix='/auth',
@@ -30,3 +30,12 @@ async def add_person_data(session: db_dep, user_request: UserRequest, response: 
         raise HTTPException(status_code=400, detail='the person already exists')
     
 
+@router.get('/login')
+async def login(session: db_dep, request_form: form_dep):
+    await authenticate_user(
+        session, 
+        UserRequest(
+            email=request_form.username,
+            password=request_form.password
+        )
+    )

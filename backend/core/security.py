@@ -16,8 +16,14 @@ crypto_context = CryptContext(schemes=['argon2'], deprecated='auto')
 def sync_hash_password(password: str):
     return crypto_context.hash(password)
 
+def sync_verify_hash(original_hash: str, user_hash: str):
+    return crypto_context.verify(user_hash, original_hash)
+
 async def hash_password(password: str):
     return await run_in_threadpool(sync_hash_password, password)
+
+async def verify_hash(original_hash: str, user_hash: str):
+    return await run_in_threadpool(sync_verify_hash, original_hash, user_hash)
 
 def create_token(payload: dict, ):
     token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)

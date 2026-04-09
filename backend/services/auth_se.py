@@ -1,11 +1,12 @@
 import uuid
 from datetime import datetime, timedelta, timezone
 from sqlalchemy.ext.asyncio import AsyncSession
-from repositories.auth_repo import create_user, save_refresh_token
+from repositories.auth_repo import create_user, save_refresh_token, get_user_by_email
 from schemas.user import UserRequest
 from schemas.token import TokenBase
 from models.db_tables import User, RefreshToken
-from core.security import hash_password, create_token
+from core.security import hash_password, create_token, verify_hash
+from core.exceptions import InvalidCredentialsError
 
 async def register_user(session: AsyncSession, user_request: UserRequest):
     user_id = str(uuid.uuid4())
@@ -43,3 +44,14 @@ async def register_user(session: AsyncSession, user_request: UserRequest):
         refresh_token=refresh_token
     )
     
+async def authenticate_user(session: AsyncSession, user_data: UserRequest):
+    current_user = await get_user_by_email(session, user_data.email)
+
+    if not current_user:
+        raise InvalidCredentialsError()
+    
+    if not await verify_hash(
+        current_user.master_password_hash, 
+        user_data.password
+    ):
+        return InvalidCredentialsError()
