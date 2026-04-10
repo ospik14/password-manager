@@ -11,6 +11,19 @@ class User(Base):
     master_password_hash: Mapped[str] 
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
+class VaultItem(Base):
+    __tablename__='vault_items'
+
+    id: Mapped[str] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey('users.id', ondelete='CASCADE'))
+    title: Mapped[str] = mapped_column(String(100))
+    encrypted_login: Mapped[str]
+    encrypted_password: Mapped[str]
+    url: Mapped[str]
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
 class RefreshToken(Base):
     __tablename__="refresh_tokens"
 

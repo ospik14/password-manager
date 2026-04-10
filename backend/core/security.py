@@ -1,10 +1,10 @@
 import os
 from dotenv import load_dotenv
-from jose import jwt
+from jose import jwt, JWTError
 from passlib.context import CryptContext
 from fastapi.concurrency import run_in_threadpool
-from datetime import datetime, timedelta, timezone
-from schemas.token import TokenBase
+from core.exceptions import InvalidCredentialsError
+from schemas.token import TokenPayload
 
 load_dotenv()
 
@@ -25,8 +25,24 @@ async def hash_password(password: str):
 async def verify_hash(original_hash: str, user_hash: str):
     return await run_in_threadpool(sync_verify_hash, original_hash, user_hash)
 
-def create_token(payload: dict, ):
+def create_token(payload: dict):
     token = jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
     return token
+
+def decode_token(token: str):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get('sub')
+        token_type = payload.get('type')
+
+        if not user_id or not token_type:
+            raise JWTError
+
+        return TokenPayload(
+            user_id=user_id,
+            token_type=token_type
+        )
+    except JWTError:
+        raise InvalidCredentialsError
     

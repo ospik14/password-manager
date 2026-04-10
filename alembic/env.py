@@ -17,7 +17,7 @@ sys.path.insert(0, root_path)
 
 
 from backend.core.database import Base
-from backend.models.db_tables import Person
+from backend.models.db_tables import User
 
 config = context.config
 
