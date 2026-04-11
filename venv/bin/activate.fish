@@ -33,7 +33,7 @@ end
 # Unset irrelevant variables.
 deactivate nondestructive
 
-set -gx VIRTUAL_ENV '/home/ospikk/Документи/ItProjects/none/venv'
+set -gx VIRTUAL_ENV '/home/ospikk/Документи/ItProjects/password-manager/venv'
 
 set -gx _OLD_VIRTUAL_PATH $PATH
 set -gx PATH "$VIRTUAL_ENV/"bin $PATH

@@ -1,7 +1,9 @@
 import os
+import base64
 from dotenv import load_dotenv
 from jose import jwt, JWTError
 from passlib.context import CryptContext
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 from fastapi.concurrency import run_in_threadpool
 from core.exceptions import InvalidCredentialsError
 from schemas.token import TokenPayload
@@ -9,7 +11,8 @@ from schemas.token import TokenPayload
 load_dotenv()
 
 ALGORITHM = os.getenv('ALGORITHM')
-SECRET_KEY = os. getenv('SECRET_KEY')
+SECRET_KEY = os.getenv('SECRET_KEY')
+AES_KEY = os.getenv('AES_KEY')
 
 crypto_context = CryptContext(schemes=['argon2'], deprecated='auto')
 
@@ -45,4 +48,15 @@ def decode_token(token: str):
         )
     except JWTError:
         raise InvalidCredentialsError
+    
+def sync_encrypt_data(data: str):
+    aesgcm = AESGCM(base64.b64decode(AES_KEY))
+    nonce = os.urandom(12)
+
+    ciphertext = aesgcm.encrypt(nonce, data.encode('utf-8'), associated_data=None)
+
+    return nonce + ciphertext
+
+async def encrypt_data(data: str):
+    return await run_in_threadpool(sync_encrypt_data, data)
     

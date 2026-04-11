@@ -4,7 +4,7 @@ from schemas.vaultIiem import VaultItemRequest
 from services.vault_se import process_new_item
 
 router = APIRouter(
-    prefix='vault',
+    prefix='/vault',
     tags=['vault']
 )
 
