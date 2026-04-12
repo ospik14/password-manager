@@ -15,3 +15,5 @@ env/
 
 postgres_data/
 .DS_Store
+
+.git-reviewer/
