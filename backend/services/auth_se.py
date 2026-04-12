@@ -31,7 +31,7 @@ async def authenticate_user(session: AsyncSession, user_data: UserRequest):
         current_user.master_password_hash, 
         user_data.password
     ):
-        return InvalidCredentialsError()
+        raise InvalidCredentialsError()
 
     tokens = await get_tokens(session, current_user.id)
 
