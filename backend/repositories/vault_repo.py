@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, update, func
 from models.db_tables import VaultItem
 
 async def create_item(session: AsyncSession, vault_item: VaultItem):
@@ -26,3 +26,18 @@ async def get_item_by_id(session: AsyncSession, id: str, user_id: str):
     item = await session.execute(query)
 
     return item.scalar_one_or_none()
+
+async def update_item(session: AsyncSession, id: str, user_id: str, data: dict):
+    stmt = (
+        update(VaultItem)
+        .where(
+            VaultItem.id == id,
+            VaultItem.user_id == user_id
+        )
+        .values(**data, updated_at = func.now())
+        .returning(VaultItem)
+    )
+    updated_item = await session.execute(stmt)
+    await session.commit()
+
+    return updated_item.scalar_one_or_none()

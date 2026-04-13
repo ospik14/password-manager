@@ -10,3 +10,6 @@ class InvalidCredentialsError(Exception):
 
 class NotFoundError(Exception):
     pass
+
+class UnprocessableContent(Exception):
+    pass

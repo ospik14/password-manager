@@ -1,11 +1,13 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from uuid import uuid4
 from schemas.token import TokenPayload
-from schemas.vaultItem import VaultItemRequest, VaultItemResponse, FullVaultItemResponse
+from schemas.vaultItem import VaultItemRequest, VaultItemResponse, FullVaultItemResponse, \
+UpdatedVaultItem
 from models.db_tables import VaultItem
 from core.security import encrypt_data, decrypt_data
-from repositories.vault_repo import create_item, get_all_items_for_user, get_item_by_id
-from core.exceptions import NotFoundError
+from repositories.vault_repo import create_item, get_all_items_for_user, get_item_by_id, \
+update_item
+from core.exceptions import NotFoundError, UnprocessableContent
 
 async def process_new_item(
     session: AsyncSession, 
@@ -34,7 +36,7 @@ async def find_all_items(session: AsyncSession, user_payload: TokenPayload):
         for item in items
     ]
 
-async def find_item_by_id(session: AsyncSession, id, user_payload: TokenPayload):
+async def find_item_by_id(session: AsyncSession, id: str, user_payload: TokenPayload):
     item = await get_item_by_id(session, id, user_payload.user_id)
 
     if not item: raise NotFoundError
@@ -53,3 +55,40 @@ async def find_item_by_id(session: AsyncSession, id, user_payload: TokenPayload)
             updated_at=item.updated_at
         )
     
+async def change_item_data(
+    session: AsyncSession, 
+    id: str, 
+    item_update: UpdatedVaultItem,
+    user_payload: TokenPayload
+):
+    update_data = item_update.model_dump(exclude_unset=True)
+
+    if not update_data:
+        raise UnprocessableContent
+    
+    if 'encrypted_login' in update_data:
+        cipher_login = await encrypt_data(update_data['encrypted_login'])
+        update_data['encrypted_login'] = cipher_login
+
+    if 'encrypted_password' in update_data:
+        cipher_password = await encrypt_data(update_data['encrypted_password'])
+        update_data['encrypted_password'] = cipher_password
+
+    new_item_data = await update_item(session, id, user_payload.user_id, update_data)
+
+    if not new_item_data: raise NotFoundError
+
+    decrypted_login = await decrypt_data(new_item_data.encrypted_login)
+    decrypted_password = await decrypt_data(new_item_data.encrypted_password)
+
+    return FullVaultItemResponse(
+            id=new_item_data.id,
+            user_id=new_item_data.user_id,
+            title=new_item_data.title,
+            login=decrypted_login,
+            password=decrypted_password,
+            url=new_item_data.url,
+            created_at=new_item_data.created_at,
+            updated_at=new_item_data.updated_at
+        )
+        

@@ -19,3 +19,7 @@ async def user_exist(request: Request, exc: UserExists):
 @app.exception_handler(NotFoundError)
 async def user_exist(request: Request, exc: NotFoundError):
     return JSONResponse(status_code=404, content={'detail': 'data not found!'})
+
+@app.exception_handler(UnprocessableContent)
+async def user_exist(request: Request, exc: NotFoundError):
+    return JSONResponse(status_code=422, content={'detail': 'incorrect data!'})
