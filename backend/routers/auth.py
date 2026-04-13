@@ -27,16 +27,12 @@ async def add_person_data(session: db_dep, user_request: UserRequest, response: 
         'token_type': 'bearer'
     }
     
-    
 
 @router.post('/login')
 async def login(session: db_dep, request_form: form_dep, response: Response):
     tokens = await authenticate_user(
         session, 
-        UserRequest(
-            email=request_form.username,
-            password=request_form.password
-        )
+        request_form
     )
     await set_refresh_token(response, tokens.refresh_token)
 

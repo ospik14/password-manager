@@ -7,3 +7,6 @@ class WrongParams(Exception):
 
 class InvalidCredentialsError(Exception):
     pass
+
+class NotFoundError(Exception):
+    pass

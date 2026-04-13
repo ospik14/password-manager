@@ -1,5 +1,6 @@
 import uuid
 from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi.security.oauth2 import OAuth2PasswordRequestForm
 from repositories.auth_repo import create_user, get_user_by_email
 from schemas.user import UserRequest
 from models.db_tables import User
@@ -21,8 +22,8 @@ async def register_user(session: AsyncSession, user_request: UserRequest):
     return tokens
 
     
-async def authenticate_user(session: AsyncSession, user_data: UserRequest):
-    current_user = await get_user_by_email(session, user_data.email)
+async def authenticate_user(session: AsyncSession, user_data: OAuth2PasswordRequestForm):
+    current_user = await get_user_by_email(session, user_data.username)
 
     if not current_user:
         raise InvalidCredentialsError()

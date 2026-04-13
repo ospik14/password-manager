@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from depends import db_dep, user_dep
 from schemas.vaultItem import VaultItemRequest
-from services.vault_se import process_new_item, find_all_items
+from services.vault_se import process_new_item, find_all_items, find_item_by_id
 
 router = APIRouter(
     prefix='/vault',
@@ -19,4 +19,8 @@ async def create_items(
 @router.get('/api/items/')
 async def get_my_items(session: db_dep, user_payload: user_dep):
     return await find_all_items(session, user_payload)
+
+@router.get('/api/items/{id}')
+async def get_item_by_id(session: db_dep, id: str, user_payload: user_dep):
+    return await find_item_by_id(session, id, user_payload)
 

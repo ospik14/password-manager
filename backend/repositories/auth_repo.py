@@ -9,6 +9,7 @@ async def create_user(session: AsyncSession, user: User):
     try: 
         await session.commit()
     except IntegrityError:
+        session.rollback()
         raise UserExists
     
 async def save_refresh_token(session: AsyncSession, token: RefreshToken):

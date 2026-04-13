@@ -14,3 +14,15 @@ async def get_all_items_for_user(session: AsyncSession, user_id: str):
     items = await session.execute(query)
 
     return items.mappings().all()
+
+async def get_item_by_id(session: AsyncSession, id: str, user_id: str):
+    query = (
+        select(VaultItem)
+        .where(
+            VaultItem.id == id,
+            VaultItem.user_id == user_id
+        )
+    )
+    item = await session.execute(query)
+
+    return item.scalar_one_or_none()
