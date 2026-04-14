@@ -7,13 +7,18 @@ from models.db_tables import VaultItem
 from core.security import encrypt_data, decrypt_data
 from repositories.vault_repo import create_item, get_all_items_for_user, get_item_by_id, \
 update_item
-from core.exceptions import NotFoundError, UnprocessableContent
+from core.exceptions import NotFoundError, UnprocessableContent, PasswordLeak
+from clients.hibp_client import check_password_leak
 
 async def process_new_item(
     session: AsyncSession, 
     item: VaultItemRequest, 
     user_payload: TokenPayload
 ):
+    leaks_count = await check_password_leak(item.password)
+    if not item.force_save and leaks_count > 0:
+        raise PasswordLeak(f'Цей пароль знайдено у витоках {leaks_count} разів.')
+
     cipher_login = await encrypt_data(item.login)
     cipher_password = await encrypt_data(item.password)
 

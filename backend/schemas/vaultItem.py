@@ -9,6 +9,7 @@ class VaultItemRequest(VaultItemBase):
     login: str = Field(max_length=100)
     password: str = Field(min_length=4, max_length=100)
     url: Optional[str] = None
+    force_save: Optional[bool] = False
 
 class VaultItemResponse(VaultItemBase):
     id: str

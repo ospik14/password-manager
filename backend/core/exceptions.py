@@ -13,3 +13,6 @@ class NotFoundError(Exception):
 
 class UnprocessableContent(Exception):
     pass
+
+class PasswordLeak(Exception):
+    pass
