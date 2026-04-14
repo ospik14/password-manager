@@ -19,8 +19,8 @@ async def check_password_leak(password: str):
             line.split(':')[0]: line.split(':')[-1]
             for line in response.text.splitlines()
         }
-        count = int(hashes.get(suffix)) or 0
-        
-        return count
+        count = hashes.get(suffix) or 0
+
+        return int(count)
 
 
