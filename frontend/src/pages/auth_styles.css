@@ -1,0 +1,90 @@
+.auth-screen {
+  background:
+    radial-gradient(circle at 20% 10%, rgba(0, 255, 65, 0.08), transparent 32%),
+    radial-gradient(circle at 80% 0%, rgba(0, 229, 255, 0.12), transparent 26%),
+    #0a0e17;
+}
+
+.auth-glitch-in {
+  animation: authGlitchIn 520ms steps(2, end);
+}
+
+.auth-panel {
+  border: 1px solid rgba(0, 255, 65, 0.42);
+  box-shadow:
+    0 0 0 1px rgba(0, 229, 255, 0.26) inset,
+    0 0 14px rgba(0, 255, 65, 0.2),
+    0 0 28px rgba(0, 229, 255, 0.18);
+}
+
+.terminal-line {
+  border-bottom: 1px solid rgba(0, 255, 65, 0.5);
+}
+
+.terminal-line:focus-within {
+  border-bottom-color: #00e5ff;
+  box-shadow: 0 8px 16px -12px rgba(0, 229, 255, 0.9);
+}
+
+.execute-button {
+  position: relative;
+  overflow: hidden;
+}
+
+.execute-button::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(0, 229, 255, 0.05) 35%,
+    rgba(0, 229, 255, 0.45) 50%,
+    rgba(0, 229, 255, 0.05) 65%,
+    transparent 100%
+  );
+  opacity: 0;
+}
+
+.execute-button:hover::after {
+  opacity: 1;
+  transform: translateX(0);
+  transition: transform 320ms ease, opacity 150ms ease;
+}
+
+.execute-button.executing::after {
+  opacity: 1;
+  animation: executeSweep 620ms linear infinite;
+}
+
+@keyframes authGlitchIn {
+  0% {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+    filter: hue-rotate(25deg) contrast(1.1);
+  }
+  30% {
+    opacity: 0.45;
+    transform: translateY(-2px) scale(1.01);
+  }
+  55% {
+    opacity: 0.8;
+    transform: translateY(1px) scale(1);
+    filter: hue-rotate(-18deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: none;
+  }
+}
+
+@keyframes executeSweep {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}

@@ -8,7 +8,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5174"], 
+    allow_origins=["http://localhost:5173"], 
     allow_credentials=True,
     allow_methods=["*"], 
     allow_headers=["*"], 
@@ -35,4 +35,10 @@ async def user_exist(request: Request, exc: NotFoundError):
 
 @app.exception_handler(PasswordLeak)
 async def user_exist(request: Request, exc: PasswordLeak):
-    return JSONResponse(status_code=400, content={'detail': 'PWNED_PASSWORD!', 'message': str(exc)})
+    return JSONResponse(
+        status_code=400,
+        content={
+            'detail': 'PASSWORD_LEAK_DETECTED',
+            'message': str(exc),
+        },
+    )

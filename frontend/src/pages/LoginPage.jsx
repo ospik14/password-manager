@@ -4,6 +4,7 @@ import ConsoleInput from '../components/ConsoleInput'
 import ExecuteButton from '../components/ExecuteButton'
 import TerminalHeading from '../components/TerminalHeading'
 import { apiClient } from '../api/client'
+import './auth_styles.css'
 
 function LoginPage() {
   const navigate = useNavigate()
@@ -37,11 +38,11 @@ function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center p-4">
-      <section className="w-full max-w-xl border border-terminalGreen bg-terminalBlack/90 p-6 shadow-[0_0_24px_rgba(0,255,65,0.25)] md:p-8">
+    <main className="auth-screen flex min-h-screen items-center justify-center p-4 font-mono text-terminalGreen auth-glitch-in">
+      <section className="auth-panel w-full max-w-xl bg-[#1A1F2B]/70 p-6 backdrop-blur-md md:p-8">
         <TerminalHeading
-          title="VaultAPI Access Node"
-          subtitle="secure shell authentication required"
+          title=">_ VAULTAPI ACCESS NODE"
+          subtitle="SECURE SHELL AUTHENTICATION REQUIRED"
         />
 
         <form className="mt-8 space-y-5" onSubmit={handleSubmit}>

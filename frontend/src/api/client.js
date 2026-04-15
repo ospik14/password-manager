@@ -5,6 +5,26 @@ function getAuthHeaders() {
   return token ? { Authorization: `Bearer ${token}` } : {}
 }
 
+function formatValidationDetail(detail) {
+  if (!Array.isArray(detail)) {
+    return null
+  }
+
+  const entries = detail
+    .map((item) => {
+      if (!item || typeof item !== 'object') {
+        return null
+      }
+
+      const location = Array.isArray(item.loc) ? item.loc.join('.') : 'body'
+      const message = item.msg || 'Invalid input'
+      return `${location}: ${message}`
+    })
+    .filter(Boolean)
+
+  return entries.length ? entries.join('; ') : null
+}
+
 async function request(path, options = {}) {
   const isFormData =
     options.body instanceof URLSearchParams || options.body instanceof FormData
@@ -31,12 +51,17 @@ async function request(path, options = {}) {
   }
 
   if (!response.ok) {
+    const validationMessage =
+      typeof payload === 'string' ? null : formatValidationDetail(payload?.detail)
     const message =
       typeof payload === 'string'
         ? payload
-        : payload?.detail || payload?.message || 'Request failed'
-
-    throw new Error(message)
+        : validationMessage || payload?.detail || payload?.message || 'Request failed'
+    const error = new Error(message)
+    error.status = response.status
+    error.code = typeof payload === 'string' ? null : payload?.detail || null
+    error.serverMessage = typeof payload === 'string' ? payload : payload?.message || null
+    throw error
   }
 
   return payload
@@ -49,7 +74,9 @@ export const apiClient = {
     request(path, {
       method: 'POST',
       body:
-        body instanceof URLSearchParams || body instanceof FormData
+        body instanceof URLSearchParams ||
+        body instanceof FormData ||
+        typeof body === 'string'
           ? body
           : JSON.stringify(body),
       ...options,
@@ -58,7 +85,9 @@ export const apiClient = {
     request(path, {
       method: 'PATCH',
       body:
-        body instanceof URLSearchParams || body instanceof FormData
+        body instanceof URLSearchParams ||
+        body instanceof FormData ||
+        typeof body === 'string'
           ? body
           : JSON.stringify(body),
       ...options,
