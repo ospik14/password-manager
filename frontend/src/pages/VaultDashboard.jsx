@@ -115,7 +115,12 @@ function VaultDashboard() {
           url: createForm.url || null,
           force_save: forceSave,
         },
-        { headers },
+        {  
+          headers: { 
+            ...headers, 
+            'Content-Type': 'application/json' 
+          } 
+        }, 
       )
       await loadRecords()
       setSaveScrambleText('[ ENCRYPTING PAYLOAD ]')
