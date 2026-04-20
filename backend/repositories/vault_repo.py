@@ -1,6 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, update, func
+from sqlalchemy import select, update, delete, func
 from models.db_tables import VaultItem
+from core.exceptions import NotFoundError
 
 async def create_item(session: AsyncSession, vault_item: VaultItem):
     session.add(vault_item)
@@ -41,3 +42,18 @@ async def update_item(session: AsyncSession, id: str, user_id: str, data: dict):
     await session.commit()
 
     return updated_item.scalar_one_or_none()
+
+async def delete_item(session: AsyncSession, id: str, user_id: str):
+    stmt = (
+        delete(VaultItem)
+        .where(
+            VaultItem.id == id,
+            VaultItem.user_id == user_id
+        )
+    )
+    result = await session.execute(stmt)
+
+    if result.rowcount == 0:
+        raise NotFoundError
+    
+    await session.commit()

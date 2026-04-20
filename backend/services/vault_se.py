@@ -6,7 +6,7 @@ UpdatedVaultItem
 from models.db_tables import VaultItem
 from core.security import encrypt_data, decrypt_data
 from repositories.vault_repo import create_item, get_all_items_for_user, get_item_by_id, \
-update_item
+update_item, delete_item
 from core.exceptions import NotFoundError, UnprocessableContent, PasswordLeak
 from clients.hibp_client import check_password_leak
 
@@ -97,3 +97,9 @@ async def change_item_data(
             updated_at=new_item_data.updated_at
         )
         
+async def remove_item(
+    session: AsyncSession,
+    id: str, 
+    user_payload: TokenPayload
+):
+    await delete_item(session, id, user_payload.user_id)
